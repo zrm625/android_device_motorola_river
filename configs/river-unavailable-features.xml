@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Wi-Fi-only river: features that handheld_core_hardware.xml declares but
+     this build does not ship. The phone stack (Telecom) and printing
+     (PrintSpooler) are removed in build/make, so apps must not offer calls
+     or printing. -->
+<permissions>
+    <unavailable-feature name="android.software.telecom" />
+    <unavailable-feature name="android.software.print" />
+</permissions>
