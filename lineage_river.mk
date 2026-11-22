@@ -3,6 +3,13 @@
 # product layers without telephony (common_full_phone.mk and
 # full_base_telephony.mk add the phone stack). tablet.mk is left out on
 # purpose so the UI stays in phone mode.
+# Test phone: on debug builds, adb is on and authorized from first boot, so
+# wipes and benchmarks need no setup on the phone. Must be set before
+# vendor/lineage/config/common.mk is inherited.
+ifneq ($(TARGET_BUILD_VARIANT),user)
+WITH_ADB_INSECURE := true
+endif
+
 $(call inherit-product, $(SRC_TARGET_DIR)/product/core_64_bit.mk)
 $(call inherit-product, vendor/lineage/config/common_mobile_full.mk)
 $(call inherit-product, vendor/lineage/config/wifionly.mk)

@@ -1,0 +1,7 @@
+# Debug builds of this test phone only (device.mk installs this file only when
+# TARGET_BUILD_VARIANT is not user). Turn on "Rooted debugging" at every boot,
+# so adb root works right after a wipe. It lives in system_ext because
+# vendor_init may not write /data/adbroot.
+on post-fs-data && property:ro.debuggable=1
+    mkdir /data/adbroot 0700 root root
+    write /data/adbroot/enabled 1
