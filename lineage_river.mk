@@ -1,7 +1,26 @@
-# Inherit some common Lineage stuff
+# Inherit some common Lineage stuff.
+# Wi-Fi only: no calls, texts, or mobile data. This uses the Lineage and AOSP
+# product layers without telephony (common_full_phone.mk and
+# full_base_telephony.mk add the phone stack). tablet.mk is left out on
+# purpose so the UI stays in phone mode.
+# Test phone: on debug builds, adb is on and authorized from first boot, so
+# wipes and benchmarks need no setup on the phone. Must be set before
+# vendor/lineage/config/common.mk is inherited.
+ifneq ($(TARGET_BUILD_VARIANT),user)
+WITH_ADB_INSECURE := true
+endif
+
 $(call inherit-product, $(SRC_TARGET_DIR)/product/core_64_bit.mk)
-$(call inherit-product, vendor/lineage/config/common_full_phone.mk)
-$(call inherit-product, $(SRC_TARGET_DIR)/product/full_base_telephony.mk)
+$(call inherit-product, vendor/lineage/config/common_mobile_full.mk)
+$(call inherit-product, vendor/lineage/config/wifionly.mk)
+$(call inherit-product, $(SRC_TARGET_DIR)/product/full_base.mk)
+
+# From common_full_phone.mk and full_base_telephony.mk, minus telephony.
+PRODUCT_PRODUCT_PROPERTIES += \
+    ro.support_one_handed_mode?=true
+
+PRODUCT_COPY_FILES += \
+    frameworks/native/data/etc/handheld_core_hardware.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/handheld_core_hardware.xml
 
 # Device
 $(call inherit-product, $(LOCAL_PATH)/device.mk)

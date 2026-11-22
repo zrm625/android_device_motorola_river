@@ -26,6 +26,16 @@ PRODUCT_PACKAGES += \
     AvoidAppsInCutoutOverlay \
     NoCutoutOverlay
 
+# Minimal build: keep AOSP apps we do not use out of the image (see debloat/).
+PRODUCT_PACKAGES += \
+    RiverRemovePackages
+
+# Test phone: adb root right after a wipe on debug builds.
+ifneq ($(TARGET_BUILD_VARIANT),user)
+PRODUCT_COPY_FILES += \
+    $(LOCAL_PATH)/rootdir/etc/init.river-debug.rc:$(TARGET_COPY_OUT_SYSTEM_EXT)/etc/init/init.river-debug.rc
+endif
+
 # AAPT
 PRODUCT_AAPT_CONFIG := normal
 PRODUCT_AAPT_PREF_CONFIG := 560dpi
