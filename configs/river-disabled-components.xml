@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Wi-Fi-only river: Settings screens that need the phone stack or the print
+     spooler, both removed in build/make. Opened by intent (for example
+     android.settings.APN_SETTINGS), they crash Settings because the carrier
+     config or print service is missing. Wi-Fi-only Settings never links to
+     them itself. -->
+<config>
+    <component-override package="com.android.settings">
+        <component class=".Settings$MobileNetworkActivity" enabled="false" />
+        <component class=".Settings$ApnSettingsActivity" enabled="false" />
+        <component class=".Settings$PrintSettingsActivity" enabled="false" />
+        <component class=".Settings$PrintJobSettingsActivity" enabled="false" />
+    </component-override>
+</config>

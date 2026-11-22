@@ -21,7 +21,8 @@ PRODUCT_PRODUCT_PROPERTIES += \
 
 PRODUCT_COPY_FILES += \
     frameworks/native/data/etc/handheld_core_hardware.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/handheld_core_hardware.xml \
-    device/motorola/river/configs/river-unavailable-features.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/river-unavailable-features.xml
+    device/motorola/river/configs/river-unavailable-features.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/river-unavailable-features.xml \
+    device/motorola/river/configs/river-disabled-components.xml:$(TARGET_COPY_OUT_VENDOR)/etc/sysconfig/river-disabled-components.xml
 
 # Device
 $(call inherit-product, $(LOCAL_PATH)/device.mk)
