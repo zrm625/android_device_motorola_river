@@ -27,17 +27,26 @@ want_cert=$(tr -d '[:space:]' < "$here/release-cert.sha256")
 : "${ANDROID_HOME:?set ANDROID_HOME to the Android SDK}"
 build_tools=$(ls -d "$ANDROID_HOME"/build-tools/*/ | sort -V | tail -1)
 
-private() {   # private FILE MODE: exists, owned by this user, exactly MODE
+private() {   # private FILE MODE: exists, owned by this user, exactly MODE, no extra ACL entries
   local f=$1 mode=$2
   [[ -e $f ]] || { echo "error: $f does not exist" >&2; exit 1; }
   [[ $(stat -c %u "$f") == "$(id -u)" ]] || { echo "error: $f is not owned by $(id -un)" >&2; exit 1; }
   [[ $(stat -c %a "$f") == "$mode" ]] || { echo "error: $f has mode $(stat -c %a "$f"), want $mode" >&2; exit 1; }
+  if command -v getfacl >/dev/null; then
+    # Only the base entries (user::, group::, other::) may exist.
+    if getfacl -cp "$f" 2>/dev/null | grep -Eq '^(user|group):[^:]+:|^mask::'; then
+      echo "error: $f has extra ACL entries" >&2; exit 1
+    fi
+  fi
 }
 private "$(dirname "$keystore")" 700
+private "$(dirname "$passfile")" 700
 private "$keystore" 600
 private "$passfile" 600
 
-if [[ -n $(git -C "$perch" status --porcelain) ]]; then
+status=$(git -C "$perch" status --porcelain --untracked-files=all) ||
+  { echo "error: cannot read the status of $perch" >&2; exit 1; }
+if [[ -n $status ]]; then
   echo "error: $perch has uncommitted or untracked files; commit or remove them so the APK matches a revision" >&2
   exit 1
 fi
@@ -59,7 +68,11 @@ fi
 
 code() { "$build_tools/aapt2" dump badging "$1" | sed -n "s/.*versionCode='\([0-9]*\)'.*/\1/p"; }
 new=$(code "$tmp/Perch.apk")
-old=$(code "$here/Perch.apk" 2>/dev/null || echo 0)
+# Compare with the committed APK, not the working tree's.
+git -C "$here" show HEAD:./Perch.apk > "$tmp/committed.apk" ||
+  { echo "error: cannot read the committed Perch.apk" >&2; exit 1; }
+old=$(code "$tmp/committed.apk")
+[[ -n $new && -n $old ]] || { echo "error: cannot read a versionCode (new '$new', committed '$old')" >&2; exit 1; }
 if (( new <= old )); then
   echo "error: the new versionCode $new is not higher than the committed Perch.apk's ($old); bump it in Perch" >&2
   exit 1
