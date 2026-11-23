@@ -1,6 +1,7 @@
 // Perch (github.com/zakstak/perch) is river's home app in place of Trebuchet. It also provides
 // swipe-up-to-home (GestureService); there is no Recents screen. Refresh Perch.apk with
-// ./update-perch; see that script for the build and signing key.
+// ./update-perch; see that script for the build and signing key. Perch.apk is signed with
+// Perch's dedicated river release key; release-cert.sha256 pins its certificate.
 
 android_app_import {
     name: "Perch",
