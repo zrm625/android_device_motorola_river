@@ -41,4 +41,8 @@
     <!-- zrm625: start dim after a wipe (sdm632-common sets 0.4588). -->
     <item type="dimen" name="config_screenBrightnessSettingDefaultFloat">0.1</item>
 
+    <!-- zrm625: no lock screen unless a PIN, pattern or password is set.
+         (SettingsProvider's def_lockscreen_disabled is no longer read.) -->
+    <bool name="config_disableLockscreenByDefault">true</bool>
+
 </resources>
