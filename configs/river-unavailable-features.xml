@@ -8,4 +8,7 @@
     <unavailable-feature name="android.software.print" />
     <!-- CompanionDeviceManager (watch pairing) is removed in build/make. -->
     <unavailable-feature name="android.software.companion_device_setup" />
+    <!-- Financed-device lock. The DeviceLock APEX declares this feature itself;
+         marking it unavailable keeps DeviceLockService from starting. -->
+    <unavailable-feature name="android.software.device_lock" />
 </permissions>
