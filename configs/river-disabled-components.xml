@@ -22,4 +22,11 @@
         <component class="com.android.healthconnect.controller.safetycenter.SafetySourceBroadcastReceiver" enabled="false" />
         <component class="com.android.healthconnect.controller.searchindexables.HealthConnectSearchIndexablesProvider" enabled="false" />
     </component-override>
+    <!-- LineageOS anonymous usage stats: never schedule or send them, even if
+         the setup wizard's "Help improve LineageOS" box is left ticked. -->
+    <component-override package="org.lineageos.lineageparts">
+        <component class="org.lineageos.lineageparts.lineagestats.ReportingServiceManager" enabled="false" />
+        <component class="org.lineageos.lineageparts.lineagestats.ReportingService" enabled="false" />
+        <component class="org.lineageos.lineageparts.lineagestats.StatsUploadJobService" enabled="false" />
+    </component-override>
 </config>

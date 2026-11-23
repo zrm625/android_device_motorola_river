@@ -19,4 +19,15 @@
 <resources>
     <!-- Default for Settings.Global.DEVICE_NAME $1=MODEL-->
     <string name="def_device_name_simple">moto g(7)</string>
+
+    <!-- zrm625 defaults: manual low brightness (pairs with
+         config_screenBrightnessSettingDefaultFloat in the framework overlay). -->
+    <bool name="def_screen_brightness_automatic_mode">false</bool>
+    <integer name="def_screen_brightness">26</integer>
+
+    <!-- zrm625 defaults: location off; no touch, screen lock or charging sounds. -->
+    <integer name="def_location_mode">0</integer>
+    <bool name="def_sound_effects_enabled">false</bool>
+    <integer name="def_lockscreen_sounds_enabled">0</integer>
+    <bool name="def_charging_sounds_enabled">false</bool>
 </resources>

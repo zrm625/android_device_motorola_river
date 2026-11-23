@@ -22,6 +22,11 @@ $(call inherit-product, $(SRC_TARGET_DIR)/product/full_base.mk)
 PRODUCT_PRODUCT_PROPERTIES += \
     ro.support_one_handed_mode?=true
 
+# Gesture navigation by default, even if the setup wizard is skipped. Overlay
+# Manager enables the overlays named here for every new user.
+PRODUCT_PRODUCT_PROPERTIES += \
+    ro.boot.vendor.overlay.theme=com.android.internal.systemui.navbar.gestural
+
 PRODUCT_COPY_FILES += \
     frameworks/native/data/etc/handheld_core_hardware.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/handheld_core_hardware.xml \
     device/motorola/river/configs/river-unavailable-features.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/river-unavailable-features.xml \
