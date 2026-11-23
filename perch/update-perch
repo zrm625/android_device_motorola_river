@@ -33,11 +33,12 @@ private() {   # private FILE MODE: exists, owned by this user, exactly MODE, no 
   [[ -e $f ]] || { echo "error: $f does not exist" >&2; exit 1; }
   [[ $(stat -c %u "$f") == "$(id -u)" ]] || { echo "error: $f is not owned by $(id -un)" >&2; exit 1; }
   [[ $(stat -c %a "$f") == "$mode" ]] || { echo "error: $f has mode $(stat -c %a "$f"), want $mode" >&2; exit 1; }
-  if command -v getfacl >/dev/null; then
-    # Only the base entries (user::, group::, other::) may exist.
-    if getfacl -cp "$f" 2>/dev/null | grep -Eq '^(user|group):[^:]+:|^mask::'; then
-      echo "error: $f has extra ACL entries" >&2; exit 1
-    fi
+  # Only the base ACL entries (user::, group::, other::) may exist. Fails closed: no getfacl, or
+  # a getfacl error, stops the script.
+  local acl
+  acl=$(getfacl -cp "$f") || { echo "error: cannot read the ACL of $f (is getfacl installed?)" >&2; exit 1; }
+  if grep -Eq '^(user|group):[^:]+:|^mask::' <<<"$acl"; then
+    echo "error: $f has extra ACL entries" >&2; exit 1
   fi
 }
 private "$(dirname "$keystore")" 700
@@ -60,10 +61,13 @@ trap 'rm -rf "$tmp"' EXIT
 "$build_tools/apksigner" sign --ks "$keystore" --ks-key-alias perch --ks-pass "file:$passfile" \
   --v4-signing-enabled false --out "$tmp/Perch.apk" "$tmp/aligned.apk"
 
+# Every certificate digest apksigner prints, whatever the format (build-tools 36: "Signer #N
+# certificate SHA-256 digest: ...", 37: "V3.0 Signer: certificate SHA-256 digest: ..."). Exactly
+# one distinct certificate may sign the APK, and it must be the pinned one: a second signer with
+# any other certificate makes this fail.
 got_cert=$("$build_tools/apksigner" verify --print-certs "$tmp/Perch.apk" |
-  sed -nE 's/^(Signer #1|V3(\.[0-9]+)? Signer:) certificate SHA-256 digest: ([0-9a-f]{64})$/\3/p' | sort -u)
-# build-tools 36 prints "Signer #1 certificate ...", 37 prints "V3.0 Signer: certificate ...".
-if [[ $got_cert != "$want_cert" ]]; then
+  sed -nE 's/^.*certificate SHA-256 digest: ([0-9a-f]{64})$/\1/p' | sort -u)
+if [[ $(grep -c . <<<"$got_cert") -ne 1 || $got_cert != "$want_cert" ]]; then
   echo "error: the APK is signed with certificate $got_cert, not Perch's release key ($want_cert)" >&2
   exit 1
 fi
