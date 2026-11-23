@@ -38,4 +38,7 @@
     <dimen name="status_bar_height_portrait">110.0px</dimen>
     <dimen name="status_bar_height_landscape">24.0dp</dimen>
 
+    <!-- zrm625: start dim after a wipe (sdm632-common sets 0.4588). -->
+    <item type="dimen" name="config_screenBrightnessSettingDefaultFloat">0.1</item>
+
 </resources>

@@ -19,4 +19,10 @@
 <resources>
     <!-- Default for Settings.Global.DEVICE_NAME $1=MODEL-->
     <string name="def_device_name_simple">moto g(7)</string>
+
+    <!-- zrm625 defaults: no lock screen, manual low brightness (pairs with
+         config_screenBrightnessSettingDefaultFloat in the framework overlay). -->
+    <bool name="def_lockscreen_disabled">true</bool>
+    <bool name="def_screen_brightness_automatic_mode">false</bool>
+    <integer name="def_screen_brightness">26</integer>
 </resources>
