@@ -36,6 +36,17 @@ PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/rootdir/etc/init.river-debug.rc:$(TARGET_COPY_OUT_SYSTEM_EXT)/etc/init/init.river-debug.rc
 endif
 
+# QA build stamp. scripts/build passes RIVER_BUILD_ID (a batch build passes
+# "<batch id>-<commit set hash>"), and phone-qa reads each value straight from
+# its partition's build.prop to prove which build each partition holds. Two
+# names, because Android loads every partition's properties into one map and
+# one shared name would let one partition hide the other.
+RIVER_BUILD_ID ?= unstamped
+PRODUCT_SYSTEM_PROPERTIES += \
+    ro.river.build_id=$(RIVER_BUILD_ID)
+PRODUCT_VENDOR_PROPERTIES += \
+    ro.vendor.river.build_id=$(RIVER_BUILD_ID)
+
 # AAPT
 PRODUCT_AAPT_CONFIG := normal
 PRODUCT_AAPT_PREF_CONFIG := 560dpi
