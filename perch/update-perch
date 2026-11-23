@@ -27,6 +27,6 @@ tmp=$(mktemp -d)
 trap 'rm -rf "$tmp"' EXIT
 "$build_tools/zipalign" -P 16 -f 4 "$perch/app/build/outputs/apk/release/app-release-unsigned.apk" "$tmp/aligned.apk"
 "$build_tools/apksigner" sign --ks "$keystore" --ks-key-alias androiddebugkey \
-  --ks-pass pass:android --key-pass pass:android --out "$here/Perch.apk" "$tmp/aligned.apk"
+  --ks-pass pass:android --key-pass pass:android --v4-signing-enabled false --out "$here/Perch.apk" "$tmp/aligned.apk"
 version=$("$build_tools/aapt2" dump badging "$here/Perch.apk" | sed -n "s/.*versionName='\([^']*\)'.*/\1/p")
 echo "Perch.apk: version $version from $perch at $rev"
