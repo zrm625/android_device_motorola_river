@@ -24,6 +24,7 @@ keydir=$HOME/.config/river-keys
 keystore=${PERCH_KEYSTORE:-$keydir/perch-release.p12}
 passfile=${PERCH_KEY_PASS_FILE:-$keydir/perch-release.pass}
 want_cert=$(tr -d '[:space:]' < "$here/release-cert.sha256")
+[[ $want_cert =~ ^[0-9a-f]{64}$ ]] || { echo "error: release-cert.sha256 is not a SHA-256 digest" >&2; exit 1; }
 : "${ANDROID_HOME:?set ANDROID_HOME to the Android SDK}"
 build_tools=$(ls -d "$ANDROID_HOME"/build-tools/*/ | sort -V | tail -1)
 
@@ -60,7 +61,8 @@ trap 'rm -rf "$tmp"' EXIT
   --v4-signing-enabled false --out "$tmp/Perch.apk" "$tmp/aligned.apk"
 
 got_cert=$("$build_tools/apksigner" verify --print-certs "$tmp/Perch.apk" |
-  sed -n 's/^Signer #1 certificate SHA-256 digest: //p')
+  sed -nE 's/^(Signer #1|V3(\.[0-9]+)? Signer:) certificate SHA-256 digest: ([0-9a-f]{64})$/\3/p' | sort -u)
+# build-tools 36 prints "Signer #1 certificate ...", 37 prints "V3.0 Signer: certificate ...".
 if [[ $got_cert != "$want_cert" ]]; then
   echo "error: the APK is signed with certificate $got_cert, not Perch's release key ($want_cert)" >&2
   exit 1
