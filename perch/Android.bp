@@ -6,6 +6,8 @@ android_app_import {
     name: "Perch",
     apk: "Perch.apk",
     presigned: true,
+    // Already zipaligned with uncompressed dex; the build must not touch its v2+ signature.
+    preprocessed: true,
     privileged: true,
     system_ext_specific: true,
     overrides: [
