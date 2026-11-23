@@ -10,6 +10,9 @@ ifneq ($(TARGET_BUILD_VARIANT),user)
 WITH_ADB_INSECURE := true
 endif
 
+# No Dynamic System Updates (booting a GSI from /data). We flash with fastboot.
+PRODUCT_NO_DYNAMIC_SYSTEM_UPDATE := true
+
 $(call inherit-product, $(SRC_TARGET_DIR)/product/core_64_bit.mk)
 $(call inherit-product, vendor/lineage/config/common_mobile_full.mk)
 $(call inherit-product, vendor/lineage/config/wifionly.mk)

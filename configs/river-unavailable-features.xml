@@ -6,4 +6,6 @@
 <permissions>
     <unavailable-feature name="android.software.telecom" />
     <unavailable-feature name="android.software.print" />
+    <!-- CompanionDeviceManager (watch pairing) is removed in build/make. -->
+    <unavailable-feature name="android.software.companion_device_setup" />
 </permissions>
