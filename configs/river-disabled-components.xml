@@ -11,4 +11,15 @@
         <component class=".Settings$PrintSettingsActivity" enabled="false" />
         <component class=".Settings$PrintJobSettingsActivity" enabled="false" />
     </component-override>
+    <!-- DeviceLock and Health Connect stay installed (removing either APEX
+         needs a frameworks/base fork), but their apps no longer wake at boot. -->
+    <component-override package="com.android.devicelockcontroller">
+        <component class="com.android.devicelockcontroller.receivers.CheckInBootCompletedReceiver" enabled="false" />
+        <component class="com.android.devicelockcontroller.receivers.RecordBootTimestampReceiver" enabled="false" />
+        <component class="com.android.devicelockcontroller.receivers.TimeChangedBroadcastReceiver" enabled="false" />
+    </component-override>
+    <component-override package="com.android.healthconnect.controller">
+        <component class="com.android.healthconnect.controller.safetycenter.SafetySourceBroadcastReceiver" enabled="false" />
+        <component class="com.android.healthconnect.controller.searchindexables.HealthConnectSearchIndexablesProvider" enabled="false" />
+    </component-override>
 </config>
