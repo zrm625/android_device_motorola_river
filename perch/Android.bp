@@ -28,6 +28,7 @@ android_app_import {
 prebuilt_etc {
     name: "privapp-permissions-perch",
     src: "privapp-permissions-perch.xml",
+    filename_from_src: true,
     sub_dir: "permissions",
     system_ext_specific: true,
 }
@@ -35,6 +36,7 @@ prebuilt_etc {
 prebuilt_etc {
     name: "sysconfig-perch",
     src: "sysconfig-perch.xml",
+    filename_from_src: true,
     sub_dir: "sysconfig",
     system_ext_specific: true,
 }
