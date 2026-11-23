@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Perch's GestureService uses hidden framework APIs (InputManager.monitorGestureInput and
+     InputEventReceiver) to watch for swipe-up-to-home. -->
+<config>
+    <hidden-api-whitelisted-app package="app.zak.perch" />
+</config>

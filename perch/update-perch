@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+# Rebuild Perch.apk from a Perch checkout (github.com/zakstak/perch).
+#
+# Usage: update-perch [PERCH_CHECKOUT]   (default ~/git/perch)
+#
+# Builds the release variant (package app.zak.perch, not debuggable) and signs it with the same
+# debug keystore Gradle uses on this workstation, so `adb install -r` of a later build signed the
+# same way updates the system copy in place. Set PERCH_KEYSTORE to use another keystore (alias
+# androiddebugkey, password android).
+set -euo pipefail
+
+here=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
+perch=${1:-$HOME/git/perch}
+keystore=${PERCH_KEYSTORE:-$HOME/.config/.android/debug.keystore}
+[[ -f $keystore ]] || { echo "error: no keystore at $keystore" >&2; exit 1; }
+: "${ANDROID_HOME:?set ANDROID_HOME to the Android SDK}"
+build_tools=$(ls -d "$ANDROID_HOME"/build-tools/*/ | sort -V | tail -1)
+
+if [[ -n $(git -C "$perch" status --porcelain --untracked-files=no) ]]; then
+  echo "error: $perch has uncommitted changes; commit them so the APK matches a revision" >&2
+  exit 1
+fi
+rev=$(git -C "$perch" rev-parse --short HEAD)
+"$perch/gradlew" -p "$perch" :app:assembleRelease --no-daemon --max-workers=4 --console=plain -q
+
+tmp=$(mktemp -d)
+trap 'rm -rf "$tmp"' EXIT
+"$build_tools/zipalign" -P 16 -f 4 "$perch/app/build/outputs/apk/release/app-release-unsigned.apk" "$tmp/aligned.apk"
+"$build_tools/apksigner" sign --ks "$keystore" --ks-key-alias androiddebugkey \
+  --ks-pass pass:android --key-pass pass:android --out "$here/Perch.apk" "$tmp/aligned.apk"
+version=$("$build_tools/aapt2" dump badging "$here/Perch.apk" | sed -n "s/.*versionName='\([^']*\)'.*/\1/p")
+echo "Perch.apk: version $version from $perch at $rev"

@@ -1,0 +1,38 @@
+// Perch (github.com/zakstak/perch) is river's home app in place of Trebuchet. It also provides
+// swipe-up-to-home (GestureService); there is no Recents screen. Refresh Perch.apk with
+// ./update-perch; see that script for the build and signing key.
+
+android_app_import {
+    name: "Perch",
+    apk: "Perch.apk",
+    presigned: true,
+    privileged: true,
+    system_ext_specific: true,
+    overrides: [
+        "Home",
+        "Launcher2",
+        "Launcher3",
+        "Launcher3QuickStep",
+        "QuickSearchBox",
+        "TrebuchetQuickStep",
+        "TrebuchetOverlay",
+    ],
+    required: [
+        "privapp-permissions-perch",
+        "sysconfig-perch",
+    ],
+}
+
+prebuilt_etc {
+    name: "privapp-permissions-perch",
+    src: "privapp-permissions-perch.xml",
+    sub_dir: "permissions",
+    system_ext_specific: true,
+}
+
+prebuilt_etc {
+    name: "sysconfig-perch",
+    src: "sysconfig-perch.xml",
+    sub_dir: "sysconfig",
+    system_ext_specific: true,
+}
