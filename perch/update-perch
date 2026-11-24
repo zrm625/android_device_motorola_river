@@ -1,0 +1,89 @@
+#!/usr/bin/env bash
+# Rebuild Perch.apk from a Perch checkout (github.com/zakstak/perch).
+#
+# Usage: update-perch [PERCH_CHECKOUT]   (default ~/git/perch)
+#
+# Builds the release variant (package app.zak.perch, not debuggable) and signs it with Perch's
+# dedicated river release key. Perch is a privileged system_ext app and the recents component, so
+# whoever holds its signing key can replace it with `adb install -r` and inherit MONITOR_INPUT,
+# usage access and its hidden-API exemption. So the key is not the shared Gradle debug key:
+#
+#   ~/.config/river-keys/perch-release.p12    PKCS12 keystore, alias "perch"
+#   ~/.config/river-keys/perch-release.pass   its password, one line
+#
+# Both must be owned by you with mode 0600, in a directory with mode 0700 (PERCH_KEYSTORE and
+# PERCH_KEY_PASS_FILE override the paths). The script refuses any other key: the signed APK's
+# certificate must match release-cert.sha256 in this directory before Perch.apk is replaced.
+# It also refuses an APK whose versionCode is not higher than the committed one, so a copy
+# installed with `adb install -r` can never shadow a newer system image copy.
+set -euo pipefail
+
+here=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
+perch=${1:-$HOME/git/perch}
+keydir=$HOME/.config/river-keys
+keystore=${PERCH_KEYSTORE:-$keydir/perch-release.p12}
+passfile=${PERCH_KEY_PASS_FILE:-$keydir/perch-release.pass}
+want_cert=$(tr -d '[:space:]' < "$here/release-cert.sha256")
+[[ $want_cert =~ ^[0-9a-f]{64}$ ]] || { echo "error: release-cert.sha256 is not a SHA-256 digest" >&2; exit 1; }
+: "${ANDROID_HOME:?set ANDROID_HOME to the Android SDK}"
+build_tools=$(ls -d "$ANDROID_HOME"/build-tools/*/ | sort -V | tail -1)
+
+private() {   # private FILE MODE: exists, owned by this user, exactly MODE, no extra ACL entries
+  local f=$1 mode=$2
+  [[ -e $f ]] || { echo "error: $f does not exist" >&2; exit 1; }
+  [[ $(stat -c %u "$f") == "$(id -u)" ]] || { echo "error: $f is not owned by $(id -un)" >&2; exit 1; }
+  [[ $(stat -c %a "$f") == "$mode" ]] || { echo "error: $f has mode $(stat -c %a "$f"), want $mode" >&2; exit 1; }
+  # Only the base ACL entries (user::, group::, other::) may exist. Fails closed: no getfacl, or
+  # a getfacl error, stops the script.
+  local acl
+  acl=$(getfacl -cp "$f") || { echo "error: cannot read the ACL of $f (is getfacl installed?)" >&2; exit 1; }
+  if grep -Eq '^(user|group):[^:]+:|^mask::' <<<"$acl"; then
+    echo "error: $f has extra ACL entries" >&2; exit 1
+  fi
+}
+private "$(dirname "$keystore")" 700
+private "$(dirname "$passfile")" 700
+private "$keystore" 600
+private "$passfile" 600
+
+status=$(git -C "$perch" status --porcelain --untracked-files=all) ||
+  { echo "error: cannot read the status of $perch" >&2; exit 1; }
+if [[ -n $status ]]; then
+  echo "error: $perch has uncommitted or untracked files; commit or remove them so the APK matches a revision" >&2
+  exit 1
+fi
+rev=$(git -C "$perch" rev-parse --short HEAD)
+"$perch/gradlew" -p "$perch" :app:assembleRelease --no-daemon --max-workers=4 --console=plain -q
+
+tmp=$(mktemp -d)
+trap 'rm -rf "$tmp"' EXIT
+"$build_tools/zipalign" -P 16 -f 4 "$perch/app/build/outputs/apk/release/app-release-unsigned.apk" "$tmp/aligned.apk"
+"$build_tools/apksigner" sign --ks "$keystore" --ks-key-alias perch --ks-pass "file:$passfile" \
+  --v4-signing-enabled false --out "$tmp/Perch.apk" "$tmp/aligned.apk"
+
+# Every certificate digest apksigner prints, whatever the format (build-tools 36: "Signer #N
+# certificate SHA-256 digest: ...", 37: "V3.0 Signer: certificate SHA-256 digest: ..."). Exactly
+# one distinct certificate may sign the APK, and it must be the pinned one: a second signer with
+# any other certificate makes this fail.
+got_cert=$("$build_tools/apksigner" verify --print-certs "$tmp/Perch.apk" |
+  sed -nE 's/^.*certificate SHA-256 digest: ([0-9a-f]{64})$/\1/p' | sort -u)
+if [[ $(grep -c . <<<"$got_cert") -ne 1 || $got_cert != "$want_cert" ]]; then
+  echo "error: the APK is signed with certificate $got_cert, not Perch's release key ($want_cert)" >&2
+  exit 1
+fi
+
+code() { "$build_tools/aapt2" dump badging "$1" | sed -n "s/.*versionCode='\([0-9]*\)'.*/\1/p"; }
+new=$(code "$tmp/Perch.apk")
+# Compare with the committed APK, not the working tree's.
+git -C "$here" show HEAD:./Perch.apk > "$tmp/committed.apk" ||
+  { echo "error: cannot read the committed Perch.apk" >&2; exit 1; }
+old=$(code "$tmp/committed.apk")
+[[ -n $new && -n $old ]] || { echo "error: cannot read a versionCode (new '$new', committed '$old')" >&2; exit 1; }
+if (( new <= old )); then
+  echo "error: the new versionCode $new is not higher than the committed Perch.apk's ($old); bump it in Perch" >&2
+  exit 1
+fi
+
+cp "$tmp/Perch.apk" "$here/Perch.apk"
+version=$("$build_tools/aapt2" dump badging "$here/Perch.apk" | sed -n "s/.*versionName='\([^']*\)'.*/\1/p")
+echo "Perch.apk: version $version (versionCode $new) from $perch at $rev, certificate $got_cert"

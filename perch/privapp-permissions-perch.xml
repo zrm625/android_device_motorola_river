@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Privileged permissions Perch requests. MONITOR_INPUT needs no entry: Perch gets it as the
+     Recents provider (config_recentsComponentName in the framework overlay). -->
+<permissions>
+    <privapp-permissions package="app.zak.perch">
+        <!-- Phone-wide recent apps in the feed, without the Usage access prompt. -->
+        <permission name="android.permission.PACKAGE_USAGE_STATS" />
+    </privapp-permissions>
+</permissions>

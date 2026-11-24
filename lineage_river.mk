@@ -27,6 +27,12 @@ PRODUCT_PRODUCT_PROPERTIES += \
 PRODUCT_PRODUCT_PROPERTIES += \
     ro.boot.vendor.overlay.theme=com.android.internal.systemui.navbar.gestural
 
+# Perch replaces Trebuchet (its module overrides TrebuchetQuickStep and
+# TrebuchetOverlay). It is also the Recents provider, for swipe-up-to-home; see
+# config_recentsComponentName in the framework overlay and perch/Android.bp.
+PRODUCT_PACKAGES += \
+    Perch
+
 PRODUCT_COPY_FILES += \
     frameworks/native/data/etc/handheld_core_hardware.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/handheld_core_hardware.xml \
     device/motorola/river/configs/river-unavailable-features.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/river-unavailable-features.xml \

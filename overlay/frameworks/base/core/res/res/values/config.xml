@@ -45,4 +45,8 @@
          (SettingsProvider's def_lockscreen_disabled is no longer read.) -->
     <bool name="config_disableLockscreenByDefault">true</bool>
 
+    <!-- zrm625: Perch replaces Trebuchet. As the Recents provider, it gets the gesture-monitor
+         permission and SystemUI binds its GestureService, which handles swipe-up-to-home. -->
+    <string name="config_recentsComponentName" translatable="false">app.zak.perch/app.zak.perch.RecentsActivity</string>
+
 </resources>
