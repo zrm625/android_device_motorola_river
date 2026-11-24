@@ -13,6 +13,10 @@ endif
 # No Dynamic System Updates (booting a GSI from /data). We flash with fastboot.
 PRODUCT_NO_DYNAMIC_SYSTEM_UPDATE := true
 
+# One zygote: 64-bit only. core_64_bit.mk otherwise also starts the 32-bit
+# zygote_secondary, which stays resident although no app on this phone is
+# 32-bit only. The 32-bit libraries stay for the vendor blobs.
+ZYGOTE_FORCE_64 := true
 $(call inherit-product, $(SRC_TARGET_DIR)/product/core_64_bit.mk)
 $(call inherit-product, vendor/lineage/config/common_mobile_full.mk)
 $(call inherit-product, vendor/lineage/config/wifionly.mk)
