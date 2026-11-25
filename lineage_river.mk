@@ -26,6 +26,9 @@ $(call inherit-product, $(SRC_TARGET_DIR)/product/full_base.mk)
 PRODUCT_PRODUCT_PROPERTIES += \
     ro.support_one_handed_mode?=true
 
+# Bound the HWUI resource cache in app processes.
+PRODUCT_SYSTEM_PROPERTIES += debug.hwui.app_memory_policy=extremelowram
+
 # Gesture navigation by default, even if the setup wizard is skipped. Overlay
 # Manager enables the overlays named here for every new user.
 PRODUCT_PRODUCT_PROPERTIES += \
