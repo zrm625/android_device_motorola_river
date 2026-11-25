@@ -78,10 +78,6 @@ PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/configs/idc/uinput-egis.idc:$(TARGET_COPY_OUT_VENDOR)/usr/idc/uinput-egis.idc \
     $(LOCAL_PATH)/configs/keylayout/uinput-egis.kl:$(TARGET_COPY_OUT_VENDOR)/usr/keylayout/uinput-egis.kl
 
-# Init
-PRODUCT_PACKAGES += \
-    init.river.rc
-
 # Lineage Health
 PRODUCT_PACKAGES += \
     vendor.lineage.health-service.default
@@ -92,7 +88,8 @@ PRODUCT_PACKAGES += \
 
 $(call soong_config_set,livedisplay_sdm,enable_dm,false)
 
-# NFC and Secure Element packages
+# NFC hardware, SKU selection and tag handling.
+ifneq ($(RIVER_WITHOUT_NFC),true)
 PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/configs/nfc/libnfc-nci.conf:$(TARGET_COPY_OUT_VENDOR)/etc/libnfc-nci.conf \
     $(LOCAL_PATH)/configs/nfc/libnfc-nxp.conf:$(TARGET_COPY_OUT_VENDOR)/etc/libnfc-nxp.conf \
@@ -107,7 +104,9 @@ PRODUCT_COPY_FILES += \
 PRODUCT_PACKAGES += \
     com.android.nfc_extras \
     Tag \
-    android.hardware.nfc@1.2-service
+    android.hardware.nfc@1.2-service \
+    init.river.rc
+endif
 
 # Sensors
 PRODUCT_COPY_FILES += \
