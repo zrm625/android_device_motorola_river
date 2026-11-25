@@ -26,6 +26,9 @@ TARGET_OTA_ASSERT_DEVICE := river
 # Display
 TARGET_SCREEN_DENSITY := 420
 
+# Select the mediaserver binary that matches the product zygote.
+TARGET_DYNAMIC_64_32_MEDIASERVER := true
+
 # Kernel
 TARGET_KERNEL_CONFIG := river_defconfig
 
