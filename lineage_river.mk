@@ -26,6 +26,9 @@ $(call inherit-product, $(SRC_TARGET_DIR)/product/full_base.mk)
 PRODUCT_PRODUCT_PROPERTIES += \
     ro.support_one_handed_mode?=true
 
+# Let each app initialize GL when it first needs it.
+PRODUCT_SYSTEM_PROPERTIES += ro.zygote.disable_gl_preload=true
+
 # Bound the HWUI resource cache in app processes.
 PRODUCT_SYSTEM_PROPERTIES += debug.hwui.app_memory_policy=extremelowram
 
