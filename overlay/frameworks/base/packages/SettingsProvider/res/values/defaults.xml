@@ -25,6 +25,9 @@
     <bool name="def_screen_brightness_automatic_mode">false</bool>
     <integer name="def_screen_brightness">26</integer>
 
+    <!-- Keep the adapter off until the user enables Bluetooth. -->
+    <bool name="def_bluetooth_on">false</bool>
+
     <!-- zrm625 defaults: location off; no touch, screen lock or charging sounds. -->
     <integer name="def_location_mode">0</integer>
     <bool name="def_sound_effects_enabled">false</bool>
