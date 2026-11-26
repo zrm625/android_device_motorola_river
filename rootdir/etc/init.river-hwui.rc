@@ -1,0 +1,13 @@
+# Set the default before app processes start. The persistent debug setting
+# can select another policy at boot or while Android is running.
+on early-init
+    setprop debug.hwui.app_memory_policy lowram
+
+on property:persist.debug.river.hwui_memory_policy=lowram
+    setprop debug.hwui.app_memory_policy lowram
+
+on property:persist.debug.river.hwui_memory_policy=extremelowram
+    setprop debug.hwui.app_memory_policy extremelowram
+
+on property:persist.debug.river.hwui_memory_policy=off
+    setprop debug.hwui.app_memory_policy default

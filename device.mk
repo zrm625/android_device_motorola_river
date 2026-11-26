@@ -36,6 +36,10 @@ PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/rootdir/etc/init.river-debug.rc:$(TARGET_COPY_OUT_SYSTEM_EXT)/etc/init/init.river-debug.rc
 endif
 
+# Apply the app HWUI policy from system init, independently of the NFC SKU.
+PRODUCT_COPY_FILES += \
+    $(LOCAL_PATH)/rootdir/etc/init.river-hwui.rc:$(TARGET_COPY_OUT_SYSTEM_EXT)/etc/init/init.river-hwui.rc
+
 # QA build stamp. scripts/build passes RIVER_BUILD_ID (a batch build passes
 # "<batch id>-<commit set hash>"), and phone-qa reads each value straight from
 # its partition's build.prop to prove which build each partition holds. Two
